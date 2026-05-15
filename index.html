@@ -373,60 +373,95 @@ Promise.all([fetchCSV(URL_HIST), fetchCSV(URL_COLAB)]).then(([hist, colab]) => {
   const hk = Object.keys(hist[0]  || {});
   const ck = Object.keys(colab[0] || {});
 
-  const cNome  = findCol(hk, /^nome$/i)              || findCol(hk, /nome|name/i)           || hk[0];
-  const cMes   = findCol(hk, /m[eê]s[\s_]?ref/i)     || findCol(hk, /m[eê]s/i)              || hk[1];
-  const cAno   = findCol(hk, /ano[\s_]?ref/i)         || findCol(hk, /ano/i)                 || hk[2];
-  const cPct   = findCol(hk, /ating|%|porcen|percent|result/i) || hk[hk.length-1];
+  // ── Colunas do histórico ──
+  const cNome = findCol(hk, /^nome$/i)                          || findCol(hk, /nome|name/i)  || hk[0];
+  const cMes  = findCol(hk, /m[eê]s[\s_]?ref/i)                || findCol(hk, /m[eê]s/i)     || hk[1];
+  const cAno  = findCol(hk, /ano[\s_]?ref/i)                   || findCol(hk, /ano/i)         || hk[2];
+  const cPct  = findCol(hk, /ating|%|porcen|percent|result/i)  || hk[hk.length - 1];
 
-  const ccNome   = findCol(ck, /^nome$/i)             || findCol(ck, /nome|name/i)           || ck[0];
-  const ccCargo  = findCol(ck, /^cargo$/i)            || findCol(ck, /cargo|n[íi]vel/i);
-  const ccSubarea= findCol(ck, /sub[_\s]?[áa]rea/i)  || findCol(ck, /subarea/i);
-  const ccStatus = findCol(ck, /status.*comercial/i)  || findCol(ck, /^status$/i)            || findCol(ck, /status|ativo/i);
+  // ── Colunas dos colaboradores ──
+  const ccNome    = findCol(ck, /^nome$/i)           || findCol(ck, /nome|name/i)      || ck[0];
+  const ccCargo   = findCol(ck, /^cargo$/i)          || findCol(ck, /cargo|n[íi]vel/i);
+  const ccSubarea = findCol(ck, /sub[_\s]?[áa]rea/i) || findCol(ck, /subarea/i);
+  const ccMesRef  = findCol(ck, /m[eê]s[\s_]?ref/i)  || findCol(ck, /m[eê]s/i);
+  const ccAnoRef  = findCol(ck, /ano[\s_]?ref/i)      || findCol(ck, /ano/i);
 
-  const colabMap = {};
-  colab.forEach(r => { const n=(r[ccNome]||'').trim(); if(n) colabMap[n]=r; });
+  // ── colabMap: nome -> linha DO MÊS ATUAL (Mês + Ano Referencia = hoje) ──
+  // Se a pessoa tiver múltiplas linhas (histórico de equipe), pega a do mês atual.
+  // Se não achar no mês atual, pega a mais recente.
+  const colabAll = {}; // nome -> [rows]
+  colab.forEach(r => {
+    const n = (r[ccNome] || '').trim();
+    if (!n) return;
+    if (!colabAll[n]) colabAll[n] = [];
+    colabAll[n].push(r);
+  });
 
+  const colabMap = {}; // nome -> row do mês atual (ou mais recente)
+  Object.entries(colabAll).forEach(([nome, rows]) => {
+    // tenta achar a linha cujo Mês+Ano bate com o mês atual
+    const curRow = rows.find(r => {
+      const m = parseMes(r[ccMesRef]);
+      const a = parseInt(r[ccAnoRef]);
+      return m === TODAY.getMonth() + 1 && a === TODAY.getFullYear();
+    });
+    if (curRow) {
+      colabMap[nome] = curRow;
+    } else {
+      // fallback: linha mais recente disponível
+      const sorted = rows.slice().sort((a, b) => {
+        const ka = monthKey(a[ccAnoRef], a[ccMesRef]) || '';
+        const kb = monthKey(b[ccAnoRef], b[ccMesRef]) || '';
+        return kb.localeCompare(ka);
+      });
+      colabMap[nome] = sorted[0];
+    }
+  });
+
+  // ── Pivotar histórico ──
   const pivot = {};
   const monthSet = new Set();
 
   hist.forEach(r => {
-    const nome = (r[cNome]||'').trim();
+    const nome = (r[cNome] || '').trim();
     const key  = monthKey(r[cAno], r[cMes]);
     const val  = parsePct(r[cPct]);
     if (!nome || !key) return;
-    if (!pivot[nome]) pivot[nome] = { meses:{} };
+    if (!pivot[nome]) pivot[nome] = { meses: {} };
     pivot[nome].meses[key] = val;
     monthSet.add(key);
   });
 
   monthCols = [...monthSet].sort().map(k => ({ key: k, label: monthLabel(k) }));
 
+  // ── Montar tableData ──
   const allNames = new Set([...Object.keys(pivot), ...Object.keys(colabMap)]);
 
-  tableData = [...allNames].filter(n=>n).map(nome => {
+  tableData = [...allNames].filter(n => n).map(nome => {
     const co  = colabMap[nome] || {};
-    const piv = pivot[nome]    || { meses:{} };
+    const piv = pivot[nome]    || { meses: {} };
 
-    let ativo;
-    if (ccStatus && co[ccStatus] !== undefined) {
-      ativo = /^(ativo|sim|s|1|true|active|yes)$/i.test((co[ccStatus]||'').trim());
-    } else {
-      ativo = piv.meses[CUR_KEY] !== undefined && piv.meses[CUR_KEY] !== null;
-    }
+    // Ativo = tem linha na aba de colaboradores com Mês+Ano = mês atual
+    const coRows  = colabAll[nome] || [];
+    const ativo   = coRows.some(r => {
+      const m = parseMes(r[ccMesRef]);
+      const a = parseInt(r[ccAnoRef]);
+      return m === TODAY.getMonth() + 1 && a === TODAY.getFullYear();
+    });
 
-    const cargo  = (ccCargo   ? (co[ccCargo]  ||'') : '').trim() || '—';
-    const equipe = (ccSubarea ? (co[ccSubarea]||'') : '').trim() || '—';
+    // Cargo e Equipe (Subárea) da linha do mês atual
+    const cargo  = (ccCargo   ? (co[ccCargo]   || '') : '').trim() || '—';
+    const equipe = (ccSubarea ? (co[ccSubarea]  || '') : '').trim() || '—';
 
     return { nome, cargo, equipe, ativo, meses: piv.meses };
   });
 
   tableData.sort((a, b) => {
     if (a.ativo !== b.ativo) return a.ativo ? -1 : 1;
-    return a.nome.localeCompare(b.nome,'pt-BR');
+    return a.nome.localeCompare(b.nome, 'pt-BR');
   });
 
-  // lista de equipes únicas
-  equipes = [...new Set(tableData.map(p=>p.equipe).filter(e=>e&&e!=='—'))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  equipes = [...new Set(tableData.map(p => p.equipe).filter(e => e && e !== '—'))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
   render();
 }).catch(e => {
