@@ -32,106 +32,118 @@
   h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
   header p { font-size: 12px; color: #777; margin-top: 3px; }
 
+  /* ── controles ── */
   .controls {
     display: flex;
     align-items: center;
     gap: 6px;
     flex-wrap: wrap;
   }
-
   .filter-label {
-    font-size: 11px;
-    color: #aaa;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    margin-right: 2px;
+    font-size: 11px; color: #aaa;
+    text-transform: uppercase; letter-spacing: .07em; margin-right: 2px;
   }
-
   .filter-btn {
-    padding: 5px 13px;
-    border-radius: 3px;
-    border: 1px solid #ddd;
-    background: #fff;
-    color: #555;
-    cursor: pointer;
-    font-size: 12px;
-    font-family: 'Inter', sans-serif;
+    padding: 5px 13px; border-radius: 3px;
+    border: 1px solid #ddd; background: #fff; color: #555;
+    cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
     transition: all .1s;
   }
-
   .filter-btn:hover { border-color: #aaa; color: #111; }
   .filter-btn.active { background: #111; border-color: #111; color: #fff; }
-
   .count { font-size: 12px; color: #bbb; margin-left: 4px; }
 
-  .table-wrap { overflow-x: auto; }
+  /* ── legenda flags ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-bottom: 1.5rem;
+    padding: 12px 14px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background: #fafafa;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; color: #444;
+  }
+  .flag-dot {
+    width: 13px; height: 13px; border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.08);
+    flex-shrink: 0;
+  }
 
+  /* ── tabela ── */
+  .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
 
-  /* cabeçalho */
-  thead tr:first-child th {
+  thead th {
     background: #f5f5f5;
     border-bottom: 1px solid #e0e0e0;
     padding: 8px 10px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: #666;
-    white-space: nowrap;
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: #666; white-space: nowrap;
   }
-
-  th.col-nome { text-align: left; min-width: 160px; }
-  th.col-cargo { text-align: left; min-width: 130px; }
+  th.col-nome   { text-align: left; min-width: 150px; }
+  th.col-cargo  { text-align: left; min-width: 130px; }
   th.col-equipe { text-align: left; min-width: 110px; }
   th.col-status { text-align: center; min-width: 70px; }
-  th.col-mes { text-align: center; min-width: 64px; }
+  th.col-mes    { text-align: center; min-width: 62px; }
 
-  /* células */
   td {
-    padding: 9px 10px;
+    padding: 8px 10px;
     border-bottom: 1px solid #f2f2f2;
     vertical-align: middle;
     text-align: center;
     color: #333;
   }
-
-  td.col-nome  { text-align: left; font-weight: 500; color: #111; white-space: nowrap; }
-  td.col-cargo { text-align: left; color: #555; white-space: nowrap; }
-  td.col-equipe{ text-align: left; color: #777; white-space: nowrap; }
-
+  td.col-nome   { text-align: left; font-weight: 500; color: #111; white-space: nowrap; }
+  td.col-cargo  { text-align: left; color: #555; white-space: nowrap; }
+  td.col-equipe { text-align: left; color: #777; white-space: nowrap; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #fafafa; }
 
-  /* separador visual a cada grupo de 3 meses — via JS */
-  td.sep, th.sep { border-left: 1px solid #e8e8e8; }
+  th.sep, td.sep { border-left: 1px solid #e8e8e8; }
 
   .badge {
-    display: inline-block;
-    padding: 2px 7px;
-    border-radius: 2px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .04em;
-    text-transform: uppercase;
+    display: inline-block; padding: 2px 7px;
+    border-radius: 2px; font-size: 10px; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase;
   }
-
   .b-ativo   { background: #f0f0f0; color: #444; }
   .b-inativo { background: #fafafa; color: #bbb; }
 
-  /* valores — só cor do texto */
-  .hit   { color: #16a34a; font-weight: 500; }
-  .miss  { color: #dc2626; font-weight: 500; }
-  .empty { color: #ccc; }
-
-  .loading {
-    padding: 4rem;
+  /* ── células de flag ── */
+  .cell-wrap {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-weight: 500;
+    color: #111;
+    min-width: 46px;
     text-align: center;
-    color: #aaa;
-    font-size: 13px;
-    line-height: 2.5;
+    font-size: 12px;
   }
 
+  /* blue  ≥ 120 */
+  .flag-blue   { background: #dbeafe; }
+  /* green ≥ 100 */
+  .flag-green  { background: #dcfce7; }
+  /* yellow 70.1–99.9 */
+  .flag-yellow { background: #fef9c3; }
+  /* red  20.1–70 */
+  .flag-red    { background: #fee2e2; }
+  /* black ≤ 20 */
+  .flag-black  { background: #e5e7eb; }
+  /* sem dado */
+  .flag-empty  { color: #ccc; background: transparent; }
+
+  .loading {
+    padding: 4rem; text-align: center; color: #aaa;
+    font-size: 13px; line-height: 2.5;
+  }
   .spinner {
     width: 22px; height: 22px;
     border: 2px solid #eee; border-top-color: #333;
@@ -139,7 +151,6 @@
     animation: spin .7s linear infinite;
     margin: 0 auto 1rem;
   }
-
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
@@ -153,6 +164,15 @@
   <div class="controls" id="controls"></div>
 </header>
 
+<!-- legenda -->
+<div class="legend">
+  <div class="legend-item"><div class="flag-dot" style="background:#dbeafe"></div> Blue Flag — ≥ 120%</div>
+  <div class="legend-item"><div class="flag-dot" style="background:#dcfce7"></div> Green Flag — ≥ 100%</div>
+  <div class="legend-item"><div class="flag-dot" style="background:#fef9c3"></div> Yellow Flag — 70,1% a 99,9%</div>
+  <div class="legend-item"><div class="flag-dot" style="background:#fee2e2"></div> Red Flag — abaixo de 70%</div>
+  <div class="legend-item"><div class="flag-dot" style="background:#e5e7eb"></div> Black Flag — abaixo de 20%</div>
+</div>
+
 <div id="root">
   <div class="loading"><div class="spinner"></div>Carregando...</div>
 </div>
@@ -161,36 +181,32 @@
 const URL_HIST  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvwO3Ag2f2cbkVgR1pJZp6fANQcbualGKlAG50fmOljuEGKZ1gJBbSAjRdO3SomXUEVQOWnTvlfHRd/pub?gid=1955044016&single=true&output=csv';
 const URL_COLAB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvwO3Ag2f2cbkVgR1pJZp6fANQcbualGKlAG50fmOljuEGKZ1gJBbSAjRdO3SomXUEVQOWnTvlfHRd/pub?gid=1782440078&single=true&output=csv';
 
-const MESES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MESES_PT  = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MESES_MAP = { janeiro:1,fevereiro:2,março:3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12 };
 
 let activeFilter = 'todos';
-let tableData = []; // [{nome, cargo, equipe, ativo, meses:{key:pct}}]
-let monthCols = []; // [{key:'2025-06', label:'Jun/25'}]
+let tableData = [];
+let monthCols = [];
 
 const fetchCSV = url =>
   fetch(url)
     .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
     .then(t => Papa.parse(t, { header: true, skipEmptyLines: true }).data);
 
-// Encontra coluna por regex
-const col = (keys, re) => keys.find(k => re.test(k.trim())) || null;
+const findCol = (keys, re) => keys.find(k => re.test(k.trim()));
 
-function pct(v) {
-  if (!v && v !== 0) return null;
-  const n = parseFloat(String(v).replace('%','').replace(',','.'));
+function parseMes(v) {
+  if (!v) return null;
+  const s = String(v).trim().toLowerCase();
+  if (MESES_MAP[s]) return MESES_MAP[s];
+  const n = parseInt(s);
   return isNaN(n) ? null : n;
 }
 
 function monthKey(ano, mes) {
-  // mes pode ser número ou nome
-  let m = parseInt(mes);
-  if (isNaN(m)) {
-    const idx = MESES_PT.findIndex(x => x.toLowerCase() === String(mes).trim().toLowerCase().slice(0,3));
-    m = idx >= 0 ? idx + 1 : null;
-  }
-  if (!m) return null;
+  const m = parseMes(mes);
   const a = parseInt(ano);
-  if (!a) return null;
+  if (!m || !a) return null;
   return `${a}-${String(m).padStart(2,'0')}`;
 }
 
@@ -199,10 +215,25 @@ function monthLabel(key) {
   return MESES_PT[parseInt(m)-1] + '/' + String(a).slice(2);
 }
 
-function cellVal(p, n) {
-  if (p === null) return { display: '—', cls: 'empty' };
+function parsePct(v) {
+  if (v === null || v === undefined || String(v).trim() === '' || String(v).trim() === '-') return null;
+  const n = parseFloat(String(v).replace('%','').replace(',','.'));
+  return isNaN(n) ? null : n;
+}
+
+function flagClass(p) {
+  if (p === null) return 'flag-empty';
+  if (p >= 120)      return 'flag-blue';
+  if (p >= 100)      return 'flag-green';
+  if (p > 70)        return 'flag-yellow';
+  if (p > 20)        return 'flag-red';
+  return 'flag-black';
+}
+
+function cellHTML(p) {
+  if (p === null) return `<span class="cell-wrap flag-empty">—</span>`;
   const display = Number.isInteger(p) ? p + '%' : p.toFixed(1).replace('.',',') + '%';
-  return { display, cls: p >= 60 ? 'hit' : 'miss' };
+  return `<span class="cell-wrap ${flagClass(p)}">${display}</span>`;
 }
 
 function renderControls() {
@@ -210,7 +241,7 @@ function renderControls() {
     <span class="filter-label">Status</span>
     ${['todos','ativo','inativo'].map(f =>
       `<button class="filter-btn ${activeFilter===f?'active':''}" onclick="setFilter('${f}')">
-        ${f === 'todos' ? 'Todos' : f === 'ativo' ? 'Ativo' : 'Inativo'}
+        ${f==='todos'?'Todos':f==='ativo'?'Ativo':'Inativo'}
       </button>`
     ).join('')}
     <span class="count" id="cnt"></span>`;
@@ -230,11 +261,11 @@ function render() {
         <thead>
           <tr>
             <th class="col-nome">Nome</th>
-            <th class="col-cargo">Cargo / Nível</th>
-            <th class="col-equipe">Equipe</th>
+            <th class="col-cargo">Cargo</th>
+            <th class="col-equipe">Subárea</th>
             <th class="col-status">Status</th>
             ${monthCols.map((m, i) =>
-              `<th class="col-mes${i%3===0?' sep':''}">${m.label}</th>`
+              `<th class="col-mes${i % 3 === 0 ? ' sep' : ''}">${m.label}</th>`
             ).join('')}
           </tr>
         </thead>
@@ -242,13 +273,12 @@ function render() {
           ${list.map(p => `
             <tr>
               <td class="col-nome">${p.nome}</td>
-              <td class="col-cargo">${p.cargo || '—'}</td>
-              <td class="col-equipe">${p.equipe || '—'}</td>
-              <td><span class="badge ${p.ativo?'b-ativo':'b-inativo'}">${p.ativo?'Ativo':'Inativo'}</span></td>
-              ${monthCols.map((m, i) => {
-                const { display, cls } = cellVal(p.meses[m.key] ?? null);
-                return `<td class="${i%3===0?'sep':''}"><span class="${cls}">${display}</span></td>`;
-              }).join('')}
+              <td class="col-cargo">${p.cargo}</td>
+              <td class="col-equipe">${p.equipe}</td>
+              <td><span class="badge ${p.ativo ? 'b-ativo' : 'b-inativo'}">${p.ativo ? 'Ativo' : 'Inativo'}</span></td>
+              ${monthCols.map((m, i) =>
+                `<td class="${i % 3 === 0 ? 'sep' : ''}">${cellHTML(p.meses[m.key] ?? null)}</td>`
+              ).join('')}
             </tr>`
           ).join('')}
         </tbody>
@@ -258,24 +288,29 @@ function render() {
 
 window.setFilter = f => { activeFilter = f; render(); };
 
+// ── Mês atual = referência para status ativo ──
+const TODAY     = new Date();
+const CUR_MONTH = TODAY.getMonth() + 1; // 1-12
+const CUR_YEAR  = TODAY.getFullYear();
+const CUR_KEY   = `${CUR_YEAR}-${String(CUR_MONTH).padStart(2,'0')}`;
+
 Promise.all([fetchCSV(URL_HIST), fetchCSV(URL_COLAB)]).then(([hist, colab]) => {
 
-  // ── Detectar colunas do histórico ──
+  // ── Colunas do histórico ──
   const hk = Object.keys(hist[0] || {});
-  const cAno  = col(hk, /^ano$/i)   || hk[0];
-  const cMes  = col(hk, /^m[eê]s$/i) || hk[1];
-  const cNome = col(hk, /nome|name|colaborador|vendedor|sdr|closer/i) || hk[2];
-  const cNivel= col(hk, /n[íi]vel|cargo|fun[çc][ãa]o|role|posi[çc][ãa]o/i);
-  const cPct  = col(hk, /ating|%|porcen|percent|result|meta/i) || hk[hk.length-1];
+  const cNome  = findCol(hk, /^nome$/i)                                   || findCol(hk, /nome|name/i)      || hk[0];
+  const cMes   = findCol(hk, /^m[eê]s[\s_]?ref|^m[eê]s$/i)               || findCol(hk, /m[eê]s/i)         || hk[1];
+  const cAno   = findCol(hk, /^ano[\s_]?ref|^ano$/i)                      || findCol(hk, /ano/i)             || hk[2];
+  const cPct   = findCol(hk, /ating|%|porcen|percent|result/i)            || hk[hk.length - 1];
 
-  // ── Detectar colunas dos colaboradores ──
+  // ── Colunas dos colaboradores ──
   const ck = Object.keys(colab[0] || {});
-  const ccNome   = col(ck, /nome|name|colaborador|vendedor|sdr|closer/i) || ck[0];
-  const ccCargo  = col(ck, /cargo|n[íi]vel|fun[çc][ãa]o|role|posi[çc][ãa]o/i);
-  const ccEquipe = col(ck, /equipe|time|squad|grupo|team/i);
-  const ccStatus = col(ck, /^status$|^ativo$|situaç|situac/i);
+  const ccNome   = findCol(ck, /^nome$/i)                                  || findCol(ck, /nome|name/i)      || ck[0];
+  const ccCargo  = findCol(ck, /^cargo$/i)                                 || findCol(ck, /cargo|n[íi]vel/i);
+  const ccSubarea= findCol(ck, /^subarea$|^sub[_\s]?[áa]rea$/i)           || findCol(ck, /subarea|sub.rea/i);
+  const ccStatus = findCol(ck, /status.*comercial|^status$/i)              || findCol(ck, /status|ativo/i);
 
-  // Mapa de colaboradores
+  // Mapa colaboradores
   const colabMap = {};
   colab.forEach(r => {
     const n = (r[ccNome] || '').trim();
@@ -283,46 +318,40 @@ Promise.all([fetchCSV(URL_HIST), fetchCSV(URL_COLAB)]).then(([hist, colab]) => {
   });
 
   // ── Pivotar histórico ──
-  const pivot = {}; // nome -> { meses: {key: pct} }
+  const pivot   = {};
   const monthSet = new Set();
 
   hist.forEach(r => {
     const nome = (r[cNome] || '').trim();
     const key  = monthKey(r[cAno], r[cMes]);
-    const val  = pct(r[cPct]);
+    const val  = parsePct(r[cPct]);
     if (!nome || !key) return;
     if (!pivot[nome]) pivot[nome] = { meses: {} };
     pivot[nome].meses[key] = val;
-    // nível inline se existir
-    if (cNivel && r[cNivel] && !pivot[nome].nivelInline) {
-      pivot[nome].nivelInline = r[cNivel].trim();
-    }
     monthSet.add(key);
   });
 
-  // Ordenar meses
   monthCols = [...monthSet].sort().map(k => ({ key: k, label: monthLabel(k) }));
 
   // ── Montar tableData ──
   const allNames = new Set([...Object.keys(pivot), ...Object.keys(colabMap)]);
-  const lastKey  = monthCols[monthCols.length - 1]?.key;
 
   tableData = [...allNames].filter(n => n).map(nome => {
-    const co   = colabMap[nome] || {};
-    const piv  = pivot[nome]   || { meses: {} };
+    const co  = colabMap[nome] || {};
+    const piv = pivot[nome]    || { meses: {} };
 
-    // status: coluna explícita > inferido pelo último mês
+    // Ativo = tem dado no mês atual
     let ativo;
     if (ccStatus && co[ccStatus] !== undefined) {
-      ativo = /^(ativo|sim|s|1|true|active|yes)$/.test((co[ccStatus]||'').trim().toLowerCase());
+      ativo = /^(ativo|sim|s|1|true|active|yes)$/i.test((co[ccStatus] || '').trim());
     } else {
-      ativo = lastKey ? (piv.meses[lastKey] !== undefined && piv.meses[lastKey] !== null) : false;
+      ativo = piv.meses[CUR_KEY] !== undefined && piv.meses[CUR_KEY] !== null;
     }
 
-    const cargo  = (ccCargo  ? co[ccCargo]  : null) || piv.nivelInline || '—';
-    const equipe = (ccEquipe ? co[ccEquipe] : null) || '—';
+    const cargo  = (ccCargo   ? (co[ccCargo]   || '') : '').trim() || '—';
+    const equipe = (ccSubarea ? (co[ccSubarea] || '') : '').trim() || '—';
 
-    return { nome, cargo: cargo.trim(), equipe: equipe.trim(), ativo, meses: piv.meses };
+    return { nome, cargo, equipe, ativo, meses: piv.meses };
   });
 
   tableData.sort((a, b) => {
