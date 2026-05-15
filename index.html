@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histórico de Atingimento de Meta · Board Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222;
+    --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.14);
+    --text:#f0f0f0; --muted:#888; --faint:#555;
+    --green:#4ade80; --green-bg:rgba(74,222,128,0.1); --green-bd:rgba(74,222,128,0.25);
+    --red:#f87171; --red-bg:rgba(248,113,113,0.1); --red-bd:rgba(248,113,113,0.25);
+    --accent:#f5c842; --accent-dim:rgba(245,200,66,0.12);
+    --radius:10px; --radius-sm:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1.5rem 4rem}
+
+  header{margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+  .logo-area h1{font-size:22px;font-weight:600;letter-spacing:-0.3px}
+  .logo-area p{font-size:13px;color:var(--muted);margin-top:4px}
+
+  .controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .filter-label{font-size:12px;color:var(--faint);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-right:4px}
+  .filter-btn{padding:6px 16px;border-radius:99px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all .15s}
+  .filter-btn:hover{border-color:rgba(255,255,255,.25);color:var(--text)}
+  .filter-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .count-badge{font-size:12px;color:var(--faint);font-family:'DM Mono',monospace;padding:4px 10px;background:var(--surface);border-radius:99px;border:1px solid var(--border)}
+
+  .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead{position:sticky;top:0;z-index:10}
+  th{padding:10px 14px;text-align:left;color:var(--faint);font-weight:500;font-size:11px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
+  th.mth{text-align:center;min-width:76px}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;background:var(--bg);transition:background .1s}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--surface)}
+
+  .name-cell{display:flex;align-items:center;gap:11px;min-width:190px}
+  .avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid var(--border2)}
+  .av-init{width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--muted);flex-shrink:0;font-family:'DM Mono',monospace}
+  .nome{font-weight:500;color:var(--text);font-size:13px}
+
+  .badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;font-family:'DM Mono',monospace}
+  .b-ativo{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+  .b-inativo{background:var(--surface);color:var(--faint);border:1px solid var(--border)}
+
+  td.mth{text-align:center}
+  .chip{display:inline-block;border-radius:var(--radius-sm);padding:3px 8px;font-size:11px;font-weight:500;font-family:'DM Mono',monospace}
+  .c-hit{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+  .c-miss{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+  .c-empty{color:var(--faint);font-size:13px}
+
+  .loading{padding:4rem 2rem;text-align:center;color:var(--muted);font-size:14px;line-height:2.5}
+  .spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .legend{display:flex;gap:16px;margin-top:1rem;flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .legend-dot{width:10px;height:10px;border-radius:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <h1>Histórico de Atingimento de Meta</h1>
+    <p>Board Academy · Junho/2025 → Abril/2026</p>
+  </div>
+  <div class="controls" id="controls"></div>
+</header>
+
+<div id="root">
+  <div class="loading">
+    <div class="spinner"></div>
+    Carregando dados...
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(74,222,128,0.3);border:1px solid rgba(74,222,128,0.4)"></div>Atingiu</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(248,113,113,0.3);border:1px solid rgba(248,113,113,0.4)"></div>Não atingiu</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#222;border:1px solid #333"></div>Sem dado</div>
+</div>
+
+<script>
+const HIST  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvwO3Ag2f2cbkVgR1pJZp6fANQcbualGKlAG50fmOljuEGKZ1gJBbSAjRdO3SomXUEVQOWnTvlfHRd/pub?gid=1955044016&single=true&output=csv';
+const COLAB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvwO3Ag2f2cbkVgR1pJZp6fANQcbualGKlAG50fmOljuEGKZ1gJBbSAjRdO3SomXUEVQOWnTvlfHRd/pub?gid=1782440078&single=true&output=csv';
+
+let currentFilter='todos', people=[], months=[];
+
+const fetchCSV = url =>
+  fetch(url).then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+            .then(t => Papa.parse(t, {header:true, skipEmptyLines:true}).data);
+
+function initials(n){
+  if(!n)return'?';
+  const p=n.trim().split(/\s+/);
+  return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():p[0].slice(0,2).toUpperCase();
+}
+
+function interpret(v){
+  if(!v||!v.trim()||v.trim()==='-'||v.trim()==='0')return'empty';
+  const c=v.trim().toLowerCase();
+  if(/^(sim|s|1|true|atingiu|x|✓|ok)$/.test(c))return'hit';
+  if(/^(não|nao|n|false|não atingiu|nao atingiu)$/.test(c))return'miss';
+  const n=parseFloat(c.replace('%','').replace(',','.'));
+  if(!isNaN(n)){if(n>=100)return'hit';if(n>0)return'miss';return'empty';}
+  return'empty';
+}
+
+function cellHTML(v){
+  const s=interpret(v), d=(v||'').trim();
+  if(s==='hit') return`<span class="chip c-hit">${d||'✓'}</span>`;
+  if(s==='miss')return`<span class="chip c-miss">${d||'✗'}</span>`;
+  return`<span class="c-empty">—</span>`;
+}
+
+function renderControls(){
+  document.getElementById('controls').innerHTML=`
+    <span class="filter-label">Status</span>
+    ${['todos','ativo','inativo'].map(f=>`
+      <button class="filter-btn ${currentFilter===f?'active':''}" onclick="setFilter('${f}')">
+        ${f.charAt(0).toUpperCase()+f.slice(1)}
+      </button>`).join('')}
+    <span class="count-badge" id="count-badge"></span>`;
+}
+
+function render(){
+  renderControls();
+  const list=currentFilter==='todos'?people:people.filter(p=>currentFilter==='ativo'?p.ativo:!p.ativo);
+  const badge=document.getElementById('count-badge');
+  if(badge) badge.textContent=`${list.length} pessoa${list.length!==1?'s':''}`;
+
+  document.getElementById('root').innerHTML=`
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th style="min-width:200px">Colaborador</th>
+        <th style="min-width:90px">Status</th>
+        ${months.map(m=>`<th class="mth">${m}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${list.map(p=>`
+          <tr>
+            <td><div class="name-cell">
+              ${p.foto
+                ?`<img class="avatar" src="${p.foto}" alt="${p.nome}" onerror="this.outerHTML='<div class=\\"av-init\\">${initials(p.nome)}</div>'">`
+                :`<div class="av-init">${initials(p.nome)}</div>`}
+              <span class="nome">${p.nome}</span>
+            </div></td>
+            <td><span class="badge ${p.ativo?'b-ativo':'b-inativo'}">${p.ativo?'Ativo':'Inativo'}</span></td>
+            ${months.map(m=>`<td class="mth">${cellHTML(p.hist[m])}</td>`).join('')}
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+window.setFilter = f => { currentFilter=f; render(); };
+
+Promise.all([fetchCSV(HIST), fetchCSV(COLAB)]).then(([hd, cd]) => {
+  const hk=Object.keys(hd[0]||{}), ck=Object.keys(cd[0]||{});
+  const hName=hk.find(k=>/nome|name|colaborador|vendedor|pessoa|sdr|closer|consultor/i.test(k))||hk[0];
+  const cName=ck.find(k=>/nome|name|colaborador|vendedor|pessoa|sdr|closer|consultor/i.test(k))||ck[0];
+  const fotoCol  =ck.find(k=>/foto|photo|avatar|imagem|image|url|link/i.test(k));
+  const statusCol=ck.find(k=>/^status$|^ativo$|situaç|situac/i.test(k));
+
+  months=hk.filter(k=>k!==hName&&k.trim());
+
+  const hMap={};
+  hd.forEach(r=>{const n=(r[hName]||'').trim();if(n){hMap[n]={};months.forEach(m=>{hMap[n][m]=r[m]||''})}});
+
+  const cMap={};
+  cd.forEach(r=>{const n=(r[cName]||'').trim();if(n)cMap[n]=r});
+
+  const lastM=months[months.length-1];
+  const allNames=new Set([...Object.keys(hMap),...Object.keys(cMap)]);
+
+  people=[...allNames].filter(n=>n).map(nome=>{
+    const co=cMap[nome]||{}, hist=hMap[nome]||{};
+    let ativo;
+    if(statusCol&&co[statusCol]!==undefined){
+      ativo=/^(ativo|sim|s|1|true|active|yes)$/.test((co[statusCol]||'').trim().toLowerCase());
+    } else {
+      ativo=(hist[lastM]||'').trim()!==''&&(hist[lastM]||'').trim()!=='-';
+    }
+    const foto=fotoCol?(co[fotoCol]||'').trim():'';
+    return{nome, foto:foto||null, ativo, hist};
+  });
+
+  people.sort((a,b)=>{
+    if(a.ativo!==b.ativo)return a.ativo?-1:1;
+    return a.nome.localeCompare(b.nome,'pt-BR');
+  });
+
+  render();
+}).catch(e=>{
+  document.getElementById('root').innerHTML=`
+    <div class="loading" style="color:var(--red)">
+      ⚠ Erro ao carregar dados<br>
+      <small style="color:var(--faint)">${e.message}</small>
+    </div>`;
+});
+</script>
+</body>
+</html>
