@@ -24,7 +24,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
     padding-bottom: 1.25rem;
     border-bottom: 2px solid #111;
   }
@@ -33,46 +33,55 @@
   header p { font-size: 12px; color: #777; margin-top: 3px; }
 
   /* ── controles ── */
-  .controls {
+  .toolbar {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     flex-wrap: wrap;
   }
+
   .filter-label {
     font-size: 11px; color: #aaa;
-    text-transform: uppercase; letter-spacing: .07em; margin-right: 2px;
+    text-transform: uppercase; letter-spacing: .07em;
+    margin-right: 2px; white-space: nowrap;
   }
+
   .filter-btn {
-    padding: 5px 13px; border-radius: 3px;
+    padding: 5px 12px; border-radius: 3px;
     border: 1px solid #ddd; background: #fff; color: #555;
     cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
-    transition: all .1s;
+    transition: all .1s; white-space: nowrap;
   }
   .filter-btn:hover { border-color: #aaa; color: #111; }
   .filter-btn.active { background: #111; border-color: #111; color: #fff; }
-  .count { font-size: 12px; color: #bbb; margin-left: 4px; }
 
-  /* ── legenda flags ── */
+  select.filter-select {
+    padding: 5px 10px; border-radius: 3px;
+    border: 1px solid #ddd; background: #fff; color: #555;
+    cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
+    height: 30px; outline: none;
+  }
+  select.filter-select:focus { border-color: #aaa; }
+
+  .divider { width: 1px; height: 22px; background: #e5e5e5; margin: 0 4px; }
+  .count { font-size: 12px; color: #bbb; }
+
+  /* ── legenda ── */
   .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    margin-bottom: 1.5rem;
-    padding: 12px 14px;
-    border: 1px solid #eee;
-    border-radius: 4px;
-    background: #fafafa;
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
+    margin-bottom: 1.5rem; padding: 10px 14px;
+    border: 1px solid #eee; border-radius: 4px; background: #fafafa;
   }
-  .legend-item {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 11px; color: #444;
-  }
-  .flag-dot {
-    width: 13px; height: 13px; border-radius: 3px;
-    border: 1px solid rgba(0,0,0,.08);
-    flex-shrink: 0;
-  }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: #444; }
+  .flag-dot { width: 13px; height: 13px; border-radius: 3px; border: 1px solid rgba(0,0,0,.08); flex-shrink: 0; }
 
   /* ── tabela ── */
   .table-wrap { overflow-x: auto; }
@@ -84,28 +93,39 @@
     padding: 8px 10px;
     font-size: 10px; font-weight: 600;
     text-transform: uppercase; letter-spacing: .06em;
-    color: #666; white-space: nowrap;
+    color: #666; white-space: nowrap; text-align: center;
   }
+  th.col-alert  { min-width: 36px; }
   th.col-nome   { text-align: left; min-width: 150px; }
   th.col-cargo  { text-align: left; min-width: 130px; }
   th.col-equipe { text-align: left; min-width: 110px; }
-  th.col-status { text-align: center; min-width: 70px; }
-  th.col-mes    { text-align: center; min-width: 62px; }
+  th.col-status { min-width: 70px; }
+  th.col-mes    { min-width: 62px; }
 
   td {
-    padding: 8px 10px;
+    padding: 0;
     border-bottom: 1px solid #f2f2f2;
+    border-right: 1px solid #f2f2f2;
     vertical-align: middle;
     text-align: center;
-    color: #333;
   }
-  td.col-nome   { text-align: left; font-weight: 500; color: #111; white-space: nowrap; }
-  td.col-cargo  { text-align: left; color: #555; white-space: nowrap; }
-  td.col-equipe { text-align: left; color: #777; white-space: nowrap; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #fafafa; }
+  td:last-child { border-right: none; }
 
-  th.sep, td.sep { border-left: 1px solid #e8e8e8; }
+  /* células com padding normal (não coloridas) */
+  td.col-alert  { padding: 8px 6px; min-width: 36px; }
+  td.col-nome   { padding: 8px 10px; text-align: left; font-weight: 500; color: #111; white-space: nowrap; }
+  td.col-cargo  { padding: 8px 10px; text-align: left; color: #555; white-space: nowrap; }
+  td.col-equipe { padding: 8px 10px; text-align: left; color: #777; white-space: nowrap; }
+  td.col-status { padding: 8px 10px; }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td.col-nome,
+  tr:hover td.col-cargo,
+  tr:hover td.col-equipe,
+  tr:hover td.col-status,
+  tr:hover td.col-alert { background: #fafafa; }
+
+  th.sep, td.sep { border-left: 1px solid #ddd !important; }
 
   .badge {
     display: inline-block; padding: 2px 7px;
@@ -115,41 +135,57 @@
   .b-ativo   { background: #f0f0f0; color: #444; }
   .b-inativo { background: #fafafa; color: #bbb; }
 
-  /* ── células de flag ── */
-  .cell-wrap {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 3px;
+  /* ── células de flag — preenchem a td inteira ── */
+  .flag-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 36px;
+    padding: 8px 6px;
     font-weight: 500;
     color: #111;
-    min-width: 46px;
-    text-align: center;
     font-size: 12px;
   }
-
-  /* blue  ≥ 120 */
   .flag-blue   { background: #dbeafe; }
-  /* green ≥ 100 */
   .flag-green  { background: #dcfce7; }
-  /* yellow 70.1–99.9 */
   .flag-yellow { background: #fef9c3; }
-  /* red  20.1–70 */
   .flag-red    { background: #fee2e2; }
-  /* black ≤ 20 */
   .flag-black  { background: #e5e7eb; }
-  /* sem dado */
-  .flag-empty  { color: #ccc; background: transparent; }
+  .flag-empty  { background: transparent; color: #ccc; }
 
-  .loading {
-    padding: 4rem; text-align: center; color: #aaa;
-    font-size: 13px; line-height: 2.5;
+  /* ── alerta 3 meses preto ── */
+  .alert-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #ef4444;
+    flex-shrink: 0;
+    position: relative;
   }
+  .alert-dot::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid #ef4444;
+    opacity: .35;
+  }
+  .alert-wrap {
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px;
+  }
+  .alert-tip {
+    font-size: 10px; color: #ef4444; font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .loading { padding: 4rem; text-align: center; color: #aaa; font-size: 13px; line-height: 2.5; }
   .spinner {
     width: 22px; height: 22px;
     border: 2px solid #eee; border-top-color: #333;
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-    margin: 0 auto 1rem;
+    border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 1rem;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
@@ -161,16 +197,17 @@
     <h1>Histórico de Atingimento de Meta</h1>
     <p>Board Academy</p>
   </div>
-  <div class="controls" id="controls"></div>
 </header>
 
-<!-- legenda -->
+<div class="toolbar" id="toolbar"></div>
+
 <div class="legend">
   <div class="legend-item"><div class="flag-dot" style="background:#dbeafe"></div> Blue Flag — ≥ 120%</div>
   <div class="legend-item"><div class="flag-dot" style="background:#dcfce7"></div> Green Flag — ≥ 100%</div>
   <div class="legend-item"><div class="flag-dot" style="background:#fef9c3"></div> Yellow Flag — 70,1% a 99,9%</div>
-  <div class="legend-item"><div class="flag-dot" style="background:#fee2e2"></div> Red Flag — abaixo de 70%</div>
-  <div class="legend-item"><div class="flag-dot" style="background:#e5e7eb"></div> Black Flag — abaixo de 20%</div>
+  <div class="legend-item"><div class="flag-dot" style="background:#fee2e2"></div> Red Flag — 20,1% a 70%</div>
+  <div class="legend-item"><div class="flag-dot" style="background:#e5e7eb"></div> Black Flag — ≤ 20%</div>
+  <div class="legend-item"><div class="alert-dot"></div> 3 meses seguidos no Black Flag</div>
 </div>
 
 <div id="root">
@@ -182,11 +219,13 @@ const URL_HIST  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvwO3Ag2f2cb
 const URL_COLAB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvwO3Ag2f2cbkVgR1pJZp6fANQcbualGKlAG50fmOljuEGKZ1gJBbSAjRdO3SomXUEVQOWnTvlfHRd/pub?gid=1782440078&single=true&output=csv';
 
 const MESES_PT  = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const MESES_MAP = { janeiro:1,fevereiro:2,março:3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12 };
+const MESES_MAP = {janeiro:1,fevereiro:2,'março':3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
 
-let activeFilter = 'todos';
-let tableData = [];
-let monthCols = [];
+let filterStatus = 'todos';
+let filterEquipe = 'todas';
+let tableData    = [];
+let monthCols    = [];
+let equipes      = [];
 
 const fetchCSV = url =>
   fetch(url)
@@ -197,15 +236,18 @@ const findCol = (keys, re) => keys.find(k => re.test(k.trim()));
 
 function parseMes(v) {
   if (!v) return null;
-  const s = String(v).trim().toLowerCase();
-  if (MESES_MAP[s]) return MESES_MAP[s];
+  const s = String(v).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if (MESES_MAP[s] !== undefined) return MESES_MAP[s];
+  // tenta sem acento
+  for (const [k, val] of Object.entries(MESES_MAP)) {
+    if (k.normalize('NFD').replace(/[\u0300-\u036f]/g,'') === s) return val;
+  }
   const n = parseInt(s);
   return isNaN(n) ? null : n;
 }
 
 function monthKey(ano, mes) {
-  const m = parseMes(mes);
-  const a = parseInt(ano);
+  const m = parseMes(mes), a = parseInt(ano);
   if (!m || !a) return null;
   return `${a}-${String(m).padStart(2,'0')}`;
 }
@@ -223,34 +265,61 @@ function parsePct(v) {
 
 function flagClass(p) {
   if (p === null) return 'flag-empty';
-  if (p >= 120)      return 'flag-blue';
-  if (p >= 100)      return 'flag-green';
-  if (p > 70)        return 'flag-yellow';
-  if (p > 20)        return 'flag-red';
+  if (p >= 120) return 'flag-blue';
+  if (p >= 100) return 'flag-green';
+  if (p > 70)   return 'flag-yellow';
+  if (p > 20)   return 'flag-red';
   return 'flag-black';
 }
 
 function cellHTML(p) {
-  if (p === null) return `<span class="cell-wrap flag-empty">—</span>`;
+  if (p === null) return `<div class="flag-cell flag-empty">—</div>`;
   const display = Number.isInteger(p) ? p + '%' : p.toFixed(1).replace('.',',') + '%';
-  return `<span class="cell-wrap ${flagClass(p)}">${display}</span>`;
+  return `<div class="flag-cell ${flagClass(p)}">${display}</div>`;
 }
 
-function renderControls() {
-  document.getElementById('controls').innerHTML = `
-    <span class="filter-label">Status</span>
-    ${['todos','ativo','inativo'].map(f =>
-      `<button class="filter-btn ${activeFilter===f?'active':''}" onclick="setFilter('${f}')">
-        ${f==='todos'?'Todos':f==='ativo'?'Ativo':'Inativo'}
-      </button>`
-    ).join('')}
+// Verifica se pessoa tem 3+ meses CONSECUTIVOS no black (≤20%), nos meses mais recentes
+function hasBlackStreak(meses) {
+  const keys = monthCols.map(m => m.key);
+  let streak = 0;
+  for (let i = keys.length - 1; i >= 0; i--) {
+    const p = meses[keys[i]];
+    if (p !== undefined && p !== null) {
+      if (p <= 20) { streak++; if (streak >= 3) return true; }
+      else break;
+    }
+  }
+  return false;
+}
+
+function renderToolbar() {
+  document.getElementById('toolbar').innerHTML = `
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      ${['todos','ativo','inativo'].map(f =>
+        `<button class="filter-btn ${filterStatus===f?'active':''}" onclick="setStatus('${f}')">
+          ${f==='todos'?'Todos':f==='ativo'?'Ativo':'Inativo'}
+        </button>`
+      ).join('')}
+    </div>
+    <div class="divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">Equipe</span>
+      <select class="filter-select" onchange="setEquipe(this.value)">
+        <option value="todas" ${filterEquipe==='todas'?'selected':''}>Todas</option>
+        ${equipes.map(e => `<option value="${e}" ${filterEquipe===e?'selected':''}>${e}</option>`).join('')}
+      </select>
+    </div>
+    <div class="divider"></div>
     <span class="count" id="cnt"></span>`;
 }
 
 function render() {
-  renderControls();
-  const list = activeFilter === 'todos' ? tableData
-    : tableData.filter(p => activeFilter === 'ativo' ? p.ativo : !p.ativo);
+  renderToolbar();
+
+  let list = tableData;
+  if (filterStatus !== 'todos') list = list.filter(p => filterStatus === 'ativo' ? p.ativo : !p.ativo);
+  if (filterEquipe !== 'todas') list = list.filter(p => p.equipe === filterEquipe);
 
   const el = document.getElementById('cnt');
   if (el) el.textContent = list.length + ' pessoa' + (list.length !== 1 ? 's' : '');
@@ -260,104 +329,104 @@ function render() {
       <table>
         <thead>
           <tr>
+            <th class="col-alert" title="Alerta: 3 meses seguidos no Black Flag">⚠</th>
             <th class="col-nome">Nome</th>
             <th class="col-cargo">Cargo</th>
             <th class="col-equipe">Subárea</th>
             <th class="col-status">Status</th>
             ${monthCols.map((m, i) =>
-              `<th class="col-mes${i % 3 === 0 ? ' sep' : ''}">${m.label}</th>`
+              `<th class="col-mes${i%3===0?' sep':''}">${m.label}</th>`
             ).join('')}
           </tr>
         </thead>
         <tbody>
-          ${list.map(p => `
-            <tr>
+          ${list.map(p => {
+            const alert = p.ativo && hasBlackStreak(p.meses);
+            return `<tr>
+              <td class="col-alert">
+                ${alert
+                  ? `<div class="alert-wrap"><div class="alert-dot" title="3 meses seguidos no Black Flag"></div></div>`
+                  : ''}
+              </td>
               <td class="col-nome">${p.nome}</td>
               <td class="col-cargo">${p.cargo}</td>
               <td class="col-equipe">${p.equipe}</td>
-              <td><span class="badge ${p.ativo ? 'b-ativo' : 'b-inativo'}">${p.ativo ? 'Ativo' : 'Inativo'}</span></td>
+              <td class="col-status"><span class="badge ${p.ativo?'b-ativo':'b-inativo'}">${p.ativo?'Ativo':'Inativo'}</span></td>
               ${monthCols.map((m, i) =>
-                `<td class="${i % 3 === 0 ? 'sep' : ''}">${cellHTML(p.meses[m.key] ?? null)}</td>`
+                `<td class="${i%3===0?'sep':''}">${cellHTML(p.meses[m.key] ?? null)}</td>`
               ).join('')}
-            </tr>`
-          ).join('')}
+            </tr>`;
+          }).join('')}
         </tbody>
       </table>
     </div>`;
 }
 
-window.setFilter = f => { activeFilter = f; render(); };
+window.setStatus = f => { filterStatus = f; render(); };
+window.setEquipe = f => { filterEquipe = f; render(); };
 
-// ── Mês atual = referência para status ativo ──
-const TODAY     = new Date();
-const CUR_MONTH = TODAY.getMonth() + 1; // 1-12
-const CUR_YEAR  = TODAY.getFullYear();
-const CUR_KEY   = `${CUR_YEAR}-${String(CUR_MONTH).padStart(2,'0')}`;
+const TODAY   = new Date();
+const CUR_KEY = `${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}`;
 
 Promise.all([fetchCSV(URL_HIST), fetchCSV(URL_COLAB)]).then(([hist, colab]) => {
 
-  // ── Colunas do histórico ──
-  const hk = Object.keys(hist[0] || {});
-  const cNome  = findCol(hk, /^nome$/i)                                   || findCol(hk, /nome|name/i)      || hk[0];
-  const cMes   = findCol(hk, /^m[eê]s[\s_]?ref|^m[eê]s$/i)               || findCol(hk, /m[eê]s/i)         || hk[1];
-  const cAno   = findCol(hk, /^ano[\s_]?ref|^ano$/i)                      || findCol(hk, /ano/i)             || hk[2];
-  const cPct   = findCol(hk, /ating|%|porcen|percent|result/i)            || hk[hk.length - 1];
-
-  // ── Colunas dos colaboradores ──
+  const hk = Object.keys(hist[0]  || {});
   const ck = Object.keys(colab[0] || {});
-  const ccNome   = findCol(ck, /^nome$/i)                                  || findCol(ck, /nome|name/i)      || ck[0];
-  const ccCargo  = findCol(ck, /^cargo$/i)                                 || findCol(ck, /cargo|n[íi]vel/i);
-  const ccSubarea= findCol(ck, /^subarea$|^sub[_\s]?[áa]rea$/i)           || findCol(ck, /subarea|sub.rea/i);
-  const ccStatus = findCol(ck, /status.*comercial|^status$/i)              || findCol(ck, /status|ativo/i);
 
-  // Mapa colaboradores
+  const cNome  = findCol(hk, /^nome$/i)              || findCol(hk, /nome|name/i)           || hk[0];
+  const cMes   = findCol(hk, /m[eê]s[\s_]?ref/i)     || findCol(hk, /m[eê]s/i)              || hk[1];
+  const cAno   = findCol(hk, /ano[\s_]?ref/i)         || findCol(hk, /ano/i)                 || hk[2];
+  const cPct   = findCol(hk, /ating|%|porcen|percent|result/i) || hk[hk.length-1];
+
+  const ccNome   = findCol(ck, /^nome$/i)             || findCol(ck, /nome|name/i)           || ck[0];
+  const ccCargo  = findCol(ck, /^cargo$/i)            || findCol(ck, /cargo|n[íi]vel/i);
+  const ccSubarea= findCol(ck, /sub[_\s]?[áa]rea/i)  || findCol(ck, /subarea/i);
+  const ccStatus = findCol(ck, /status.*comercial/i)  || findCol(ck, /^status$/i)            || findCol(ck, /status|ativo/i);
+
   const colabMap = {};
-  colab.forEach(r => {
-    const n = (r[ccNome] || '').trim();
-    if (n) colabMap[n] = r;
-  });
+  colab.forEach(r => { const n=(r[ccNome]||'').trim(); if(n) colabMap[n]=r; });
 
-  // ── Pivotar histórico ──
-  const pivot   = {};
+  const pivot = {};
   const monthSet = new Set();
 
   hist.forEach(r => {
-    const nome = (r[cNome] || '').trim();
+    const nome = (r[cNome]||'').trim();
     const key  = monthKey(r[cAno], r[cMes]);
     const val  = parsePct(r[cPct]);
     if (!nome || !key) return;
-    if (!pivot[nome]) pivot[nome] = { meses: {} };
+    if (!pivot[nome]) pivot[nome] = { meses:{} };
     pivot[nome].meses[key] = val;
     monthSet.add(key);
   });
 
   monthCols = [...monthSet].sort().map(k => ({ key: k, label: monthLabel(k) }));
 
-  // ── Montar tableData ──
   const allNames = new Set([...Object.keys(pivot), ...Object.keys(colabMap)]);
 
-  tableData = [...allNames].filter(n => n).map(nome => {
+  tableData = [...allNames].filter(n=>n).map(nome => {
     const co  = colabMap[nome] || {};
-    const piv = pivot[nome]    || { meses: {} };
+    const piv = pivot[nome]    || { meses:{} };
 
-    // Ativo = tem dado no mês atual
     let ativo;
     if (ccStatus && co[ccStatus] !== undefined) {
-      ativo = /^(ativo|sim|s|1|true|active|yes)$/i.test((co[ccStatus] || '').trim());
+      ativo = /^(ativo|sim|s|1|true|active|yes)$/i.test((co[ccStatus]||'').trim());
     } else {
       ativo = piv.meses[CUR_KEY] !== undefined && piv.meses[CUR_KEY] !== null;
     }
 
-    const cargo  = (ccCargo   ? (co[ccCargo]   || '') : '').trim() || '—';
-    const equipe = (ccSubarea ? (co[ccSubarea] || '') : '').trim() || '—';
+    const cargo  = (ccCargo   ? (co[ccCargo]  ||'') : '').trim() || '—';
+    const equipe = (ccSubarea ? (co[ccSubarea]||'') : '').trim() || '—';
 
     return { nome, cargo, equipe, ativo, meses: piv.meses };
   });
 
   tableData.sort((a, b) => {
     if (a.ativo !== b.ativo) return a.ativo ? -1 : 1;
-    return a.nome.localeCompare(b.nome, 'pt-BR');
+    return a.nome.localeCompare(b.nome,'pt-BR');
   });
+
+  // lista de equipes únicas
+  equipes = [...new Set(tableData.map(p=>p.equipe).filter(e=>e&&e!=='—'))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 
   render();
 }).catch(e => {
