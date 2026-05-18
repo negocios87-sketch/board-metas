@@ -3,215 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Histórico de Atingimento de Meta · Board Academy</title>
+<title>Board Academy · Performance</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#fff;color:#111;min-height:100vh;padding:2rem 2rem 4rem;font-size:13px}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #fff;
-    color: #111;
-    min-height: 100vh;
-    padding: 2.5rem 2rem 4rem;
-    font-size: 13px;
-  }
+  .tabs{display:flex;border-bottom:2px solid #111;margin-bottom:1.5rem}
+  .tab-btn{padding:10px 22px;font-size:13px;font-weight:500;font-family:'Inter',sans-serif;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;transition:all .15s}
+  .tab-btn:hover{color:#111}
+  .tab-btn.active{color:#111;border-bottom-color:#111;font-weight:600}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
 
-  header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 2px solid #111;
-  }
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1.25rem}
+  .filter-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .filter-label{font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-right:2px;white-space:nowrap}
+  .divider{width:1px;height:22px;background:#e5e5e5;margin:0 2px}
+  .count{font-size:12px;color:#bbb}
 
-  h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
-  header p { font-size: 12px; color: #777; margin-top: 3px; }
+  .filter-btn{padding:5px 12px;border-radius:3px;border:1px solid #ddd;background:#fff;color:#555;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;transition:all .1s}
+  .filter-btn:hover{border-color:#aaa;color:#111}
+  .filter-btn.active{background:#111;border-color:#111;color:#fff}
 
-  /* ── controles ── */
-  .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 1.25rem;
-  }
+  select.filter-select{padding:5px 10px;border-radius:3px;border:1px solid #ddd;background:#fff;color:#555;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;height:30px;outline:none}
 
-  .filter-group {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
-  }
+  .cargo-wrap{position:relative}
+  .cargo-btn{display:flex;align-items:center;gap:8px;padding:0 10px;height:30px;border-radius:3px;border:1px solid #ddd;background:#fff;color:#555;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;min-width:145px;outline:none}
+  .cargo-btn:hover{border-color:#aaa;color:#111}
+  .cargo-btn.has-filter{border-color:#111;color:#111}
+  .cargo-chevron{font-size:9px;color:#bbb;margin-left:auto}
+  .cargo-panel{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1px solid #ddd;border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:200;min-width:210px;max-height:260px;overflow-y:auto;padding:4px 0}
+  .cargo-panel.open{display:block}
+  .cargo-option{display:flex;align-items:center;gap:9px;padding:7px 12px;cursor:pointer;font-size:12px;color:#333;user-select:none}
+  .cargo-option:hover{background:#f5f5f5}
+  .cargo-option input[type=checkbox]{accent-color:#111;cursor:pointer;flex-shrink:0}
+  .cargo-footer{border-top:1px solid #f0f0f0;padding:6px 12px}
+  .cargo-clear{font-size:11px;color:#999;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;padding:0}
+  .cargo-clear:hover{color:#111}
 
-  .filter-label {
-    font-size: 11px; color: #aaa;
-    text-transform: uppercase; letter-spacing: .07em;
-    margin-right: 2px; white-space: nowrap;
-  }
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:1.5rem;padding:10px 14px;border:1px solid #eee;border-radius:4px;background:#fafafa}
+  .legend-item{display:flex;align-items:center;gap:7px;font-size:11px;color:#444}
+  .flag-dot{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.08);flex-shrink:0}
 
-  .filter-btn {
-    padding: 5px 12px; border-radius: 3px;
-    border: 1px solid #ddd; background: #fff; color: #555;
-    cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
-    transition: all .1s; white-space: nowrap;
-  }
-  .filter-btn:hover { border-color: #aaa; color: #111; }
-  .filter-btn.active { background: #111; border-color: #111; color: #fff; }
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  thead th{background:#f5f5f5;border-bottom:1px solid #e0e0e0;padding:8px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#666;white-space:nowrap;text-align:center}
+  th.tl{text-align:left}
+  th.col-alert{min-width:32px}
+  th.col-nome{min-width:150px}
+  th.col-cargo{min-width:130px}
+  th.col-equipe{min-width:110px}
+  th.col-status{min-width:70px}
+  th.col-avg{min-width:72px;background:#efefef}
+  th.col-mes{min-width:62px}
+  th.col-total{min-width:110px;background:#efefef}
 
-  select.filter-select {
-    padding: 5px 10px; border-radius: 3px;
-    border: 1px solid #ddd; background: #fff; color: #555;
-    cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
-    height: 30px; outline: none;
-  }
-  select.filter-select:focus { border-color: #aaa; }
+  td{padding:0;border-bottom:1px solid #f2f2f2;border-right:1px solid #f2f2f2;vertical-align:middle;text-align:center}
+  td:last-child{border-right:none}
+  td.p{padding:8px 10px}
+  td.tl{text-align:left}
+  td.col-avg{background:#fafafa;font-weight:600;padding:8px 6px}
+  td.col-total{background:#fafafa;font-weight:600;padding:8px 10px;text-align:right}
+  tr:last-child td{border-bottom:none}
+  tr:hover td.p,tr:hover td.col-avg,tr:hover td.col-total{background:#f5f5f5}
+  th.sep,td.sep{border-left:1px solid #ddd!important}
 
-  .divider { width: 1px; height: 22px; background: #e5e5e5; margin: 0 4px; }
-  .count { font-size: 12px; color: #bbb; }
+  tr.total-row td{background:#f0f0f0;font-weight:600;border-top:2px solid #ddd}
 
-  /* ── legenda ── */
-  .legend {
-    display: flex; flex-wrap: wrap; gap: 8px 18px;
-    margin-bottom: 1.5rem; padding: 10px 14px;
-    border: 1px solid #eee; border-radius: 4px; background: #fafafa;
-  }
-  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: #444; }
-  .flag-dot { width: 13px; height: 13px; border-radius: 3px; border: 1px solid rgba(0,0,0,.08); flex-shrink: 0; }
+  .badge{display:inline-block;padding:2px 7px;border-radius:2px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .b-ativo{background:#f0f0f0;color:#444}
+  .b-inativo{background:#fafafa;color:#bbb}
 
-  /* ── tabela ── */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .flag-cell{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:36px;padding:8px 6px;font-weight:500;color:#111;font-size:12px}
+  .flag-blue{background:#dbeafe}
+  .flag-green{background:#dcfce7}
+  .flag-yellow{background:#fef9c3}
+  .flag-red{background:#fee2e2}
+  .flag-black{background:#e5e7eb}
+  .flag-empty{background:transparent;color:#ccc}
 
-  thead th {
-    background: #f5f5f5;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 8px 10px;
-    font-size: 10px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .06em;
-    color: #666; white-space: nowrap; text-align: center;
-  }
-  th.col-alert  { min-width: 36px; }
-  th.col-nome   { text-align: left; min-width: 150px; }
-  th.col-cargo  { text-align: left; min-width: 130px; }
-  th.col-equipe { text-align: left; min-width: 110px; }
-  th.col-status { min-width: 70px; }
-  th.col-mes    { min-width: 62px; }
+  .avg-hit{color:#16a34a}
+  .avg-mid{color:#d97706}
+  .avg-miss{color:#dc2626}
+  .avg-empty{color:#ccc}
 
-  td {
-    padding: 0;
-    border-bottom: 1px solid #f2f2f2;
-    border-right: 1px solid #f2f2f2;
-    vertical-align: middle;
-    text-align: center;
-  }
-  td:last-child { border-right: none; }
+  .alert-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;position:relative}
+  .alert-dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:2px solid #ef4444;opacity:.35}
+  .alert-wrap{display:flex;align-items:center;justify-content:center}
 
-  /* células com padding normal (não coloridas) */
-  td.col-alert  { padding: 8px 6px; min-width: 36px; }
-  td.col-nome   { padding: 8px 10px; text-align: left; font-weight: 500; color: #111; white-space: nowrap; }
-  td.col-cargo  { padding: 8px 10px; text-align: left; color: #555; white-space: nowrap; }
-  td.col-equipe { padding: 8px 10px; text-align: left; color: #777; white-space: nowrap; }
-  td.col-status { padding: 8px 10px; }
+  .com-cell{display:flex;align-items:center;justify-content:flex-end;padding:8px 10px;font-size:12px;color:#333;min-height:36px}
+  .com-empty{color:#ccc;justify-content:center}
 
-  tr:last-child td { border-bottom: none; }
-  tr:hover td.col-nome,
-  tr:hover td.col-cargo,
-  tr:hover td.col-equipe,
-  tr:hover td.col-status,
-  tr:hover td.col-alert { background: #fafafa; }
-
-  th.sep, td.sep { border-left: 1px solid #ddd !important; }
-
-  .badge {
-    display: inline-block; padding: 2px 7px;
-    border-radius: 2px; font-size: 10px; font-weight: 600;
-    letter-spacing: .04em; text-transform: uppercase;
-  }
-  .b-ativo   { background: #f0f0f0; color: #444; }
-  .b-inativo { background: #fafafa; color: #bbb; }
-
-  /* ── células de flag — preenchem a td inteira ── */
-  .flag-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    min-height: 36px;
-    padding: 8px 6px;
-    font-weight: 500;
-    color: #111;
-    font-size: 12px;
-  }
-  .flag-blue   { background: #dbeafe; }
-  .flag-green  { background: #dcfce7; }
-  .flag-yellow { background: #fef9c3; }
-  .flag-red    { background: #fee2e2; }
-  .flag-black  { background: #e5e7eb; }
-  .flag-empty  { background: transparent; color: #ccc; }
-
-  /* ── alerta 3 meses preto ── */
-  .alert-dot {
-    display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: #ef4444;
-    flex-shrink: 0;
-    position: relative;
-  }
-  .alert-dot::after {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    border: 2px solid #ef4444;
-    opacity: .35;
-  }
-  .alert-wrap {
-    display: flex; align-items: center; justify-content: center;
-    gap: 4px;
-  }
-  .alert-tip {
-    font-size: 10px; color: #ef4444; font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .loading { padding: 4rem; text-align: center; color: #aaa; font-size: 13px; line-height: 2.5; }
-  .spinner {
-    width: 22px; height: 22px;
-    border: 2px solid #eee; border-top-color: #333;
-    border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 1rem;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading{padding:4rem;text-align:center;color:#aaa;font-size:13px;line-height:2.5}
+  .spinner{width:22px;height:22px;border:2px solid #eee;border-top-color:#333;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>Histórico de Atingimento de Meta</h1>
-    <p>Board Academy</p>
-  </div>
-</header>
-
-<div class="toolbar" id="toolbar"></div>
-
-<div class="legend">
-  <div class="legend-item"><div class="flag-dot" style="background:#dbeafe"></div> Blue Flag — ≥ 120%</div>
-  <div class="legend-item"><div class="flag-dot" style="background:#dcfce7"></div> Green Flag — ≥ 100%</div>
-  <div class="legend-item"><div class="flag-dot" style="background:#fef9c3"></div> Yellow Flag — 70,1% a 99,9%</div>
-  <div class="legend-item"><div class="flag-dot" style="background:#fee2e2"></div> Red Flag — 20,1% a 70%</div>
-  <div class="legend-item"><div class="flag-dot" style="background:#e5e7eb"></div> Black Flag — ≤ 20%</div>
-  <div class="legend-item"><div class="alert-dot"></div> 3 meses seguidos no Black Flag</div>
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('meta')">Atingimento de Meta</button>
+  <button class="tab-btn" onclick="switchTab('comissao')">Comissao Paga</button>
 </div>
 
-<div id="root">
-  <div class="loading"><div class="spinner"></div>Carregando...</div>
+<div class="tab-content active" id="tab-meta">
+  <div class="toolbar" id="toolbar-meta"></div>
+  <div class="legend">
+    <div class="legend-item"><div class="flag-dot" style="background:#dbeafe"></div>Blue >= 120%</div>
+    <div class="legend-item"><div class="flag-dot" style="background:#dcfce7"></div>Green >= 100%</div>
+    <div class="legend-item"><div class="flag-dot" style="background:#fef9c3"></div>Yellow 70,1-99,9%</div>
+    <div class="legend-item"><div class="flag-dot" style="background:#fee2e2"></div>Red 20,1-70%</div>
+    <div class="legend-item"><div class="flag-dot" style="background:#e5e7eb"></div>Black <= 20%</div>
+    <div class="legend-item"><div class="alert-dot"></div>3 meses seguidos no Black</div>
+  </div>
+  <div id="root-meta"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+</div>
+
+<div class="tab-content" id="tab-comissao">
+  <div class="toolbar" id="toolbar-com"></div>
+  <div id="root-com"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
 </div>
 
 <script>
@@ -219,254 +131,327 @@ const URL_HIST  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvwO3Ag2f2cb
 const URL_COLAB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvwO3Ag2f2cbkVgR1pJZp6fANQcbualGKlAG50fmOljuEGKZ1gJBbSAjRdO3SomXUEVQOWnTvlfHRd/pub?gid=1782440078&single=true&output=csv';
 
 const MESES_PT  = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const MESES_MAP = {janeiro:1,fevereiro:2,'março':3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
+const MESES_MAP = {janeiro:1,fevereiro:2,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
+const TODAY   = new Date();
+const CUR_MON = TODAY.getMonth() + 1;
+const CUR_YEA = TODAY.getFullYear();
 
-let filterStatus = 'todos';
-let filterEquipe = 'todas';
-let tableData    = [];
-let monthCols    = [];
-let equipes      = [];
+let fStatus='todos', fEquipe='todas', fCargos=new Set();
+let fcStatus='todos', fcEquipe='todas';
+let metaData=[], comData=[], monthCols=[], equipes=[], cargos=[];
 
 const fetchCSV = url =>
-  fetch(url)
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-    .then(t => Papa.parse(t, { header: true, skipEmptyLines: true }).data);
+  fetch(url).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
+            .then(t=>Papa.parse(t,{header:true,skipEmptyLines:true}).data);
+const findCol = (keys,re) => keys.find(k=>re.test(k.trim()));
 
-const findCol = (keys, re) => keys.find(k => re.test(k.trim()));
-
-function parseMes(v) {
-  if (!v) return null;
-  const s = String(v).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  if (MESES_MAP[s] !== undefined) return MESES_MAP[s];
-  // tenta sem acento
-  for (const [k, val] of Object.entries(MESES_MAP)) {
-    if (k.normalize('NFD').replace(/[\u0300-\u036f]/g,'') === s) return val;
-  }
-  const n = parseInt(s);
-  return isNaN(n) ? null : n;
+function parseMes(v){
+  if(!v)return null;
+  const s=String(v).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  for(const[k,val]of Object.entries(MESES_MAP))
+    if(k.normalize('NFD').replace(/[\u0300-\u036f]/g,'')==s)return val;
+  const n=parseInt(s);return isNaN(n)?null:n;
 }
-
-function monthKey(ano, mes) {
-  const m = parseMes(mes), a = parseInt(ano);
-  if (!m || !a) return null;
+function monthKey(ano,mes){
+  const m=parseMes(mes),a=parseInt(ano);
+  if(!m||!a)return null;
   return `${a}-${String(m).padStart(2,'0')}`;
 }
-
-function monthLabel(key) {
-  const [a, m] = key.split('-');
-  return MESES_PT[parseInt(m)-1] + '/' + String(a).slice(2);
+function monthLabel(key){
+  const[a,m]=key.split('-');
+  return MESES_PT[parseInt(m)-1]+'/'+String(a).slice(2);
 }
-
-function parsePct(v) {
-  if (v === null || v === undefined || String(v).trim() === '' || String(v).trim() === '-') return null;
-  const n = parseFloat(String(v).replace('%','').replace(',','.'));
-  return isNaN(n) ? null : n;
+function parsePct(v){
+  if(!v&&v!==0)return null;
+  const n=parseFloat(String(v).replace('%','').replace(',','.'));
+  return isNaN(n)?null:n;
 }
-
-function flagClass(p) {
-  if (p === null) return 'flag-empty';
-  if (p >= 120) return 'flag-blue';
-  if (p >= 100) return 'flag-green';
-  if (p > 70)   return 'flag-yellow';
-  if (p > 20)   return 'flag-red';
-  return 'flag-black';
+function parseMoney(v){
+  if(!v&&v!==0)return null;
+  const n=parseFloat(String(v).replace(/[R$\s.]/g,'').replace(',','.'));
+  return isNaN(n)?null:n;
 }
-
-function cellHTML(p) {
-  if (p === null) return `<div class="flag-cell flag-empty">—</div>`;
-  const display = Number.isInteger(p) ? p + '%' : p.toFixed(1).replace('.',',') + '%';
-  return `<div class="flag-cell ${flagClass(p)}">${display}</div>`;
+function fmtMoney(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function flagClass(p){
+  if(p===null)return'flag-empty';
+  if(p>=120)return'flag-blue';
+  if(p>=100)return'flag-green';
+  if(p>70)return'flag-yellow';
+  if(p>20)return'flag-red';
+  return'flag-black';
 }
-
-// Verifica se pessoa tem 3+ meses CONSECUTIVOS no black (≤20%), nos meses mais recentes
-function hasBlackStreak(meses) {
-  const keys = monthCols.map(m => m.key);
-  let streak = 0;
-  for (let i = keys.length - 1; i >= 0; i--) {
-    const p = meses[keys[i]];
-    if (p !== undefined && p !== null) {
-      if (p <= 20) { streak++; if (streak >= 3) return true; }
-      else break;
-    }
+function cellHTML(p){
+  if(p===null)return`<div class="flag-cell flag-empty">-</div>`;
+  const d=p%1===0?p+'%':p.toFixed(1).replace('.',',')+' %';
+  return`<div class="flag-cell ${flagClass(p)}">${d}</div>`;
+}
+function filledMonths(meses){return monthCols.filter(m=>meses[m.key]!==undefined&&meses[m.key]!==null).length}
+function avgPct(meses){
+  const vals=monthCols.map(m=>meses[m.key]).filter(v=>v!==undefined&&v!==null);
+  if(!vals.length)return null;
+  return vals.reduce((a,b)=>a+b,0)/vals.length;
+}
+function avgHTML(p){
+  if(p===null)return`<span class="avg-empty">-</span>`;
+  const d=p%1===0?p+'%':p.toFixed(1).replace('.',',')+' %';
+  const cls=p>=100?'avg-hit':p>=70?'avg-mid':'avg-miss';
+  return`<span class="${cls}">${d}</span>`;
+}
+function hasBlackStreak(meses){
+  const keys=monthCols.map(m=>m.key);let streak=0;
+  for(let i=keys.length-1;i>=0;i--){
+    const p=meses[keys[i]];
+    if(p!==undefined&&p!==null){if(p<=20){streak++;if(streak>=3)return true;}else break;}
   }
   return false;
 }
 
-function renderToolbar() {
-  document.getElementById('toolbar').innerHTML = `
+window.switchTab=function(t){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='meta')||(i===1&&t==='comissao')));
+  document.getElementById('tab-meta').classList.toggle('active',t==='meta');
+  document.getElementById('tab-comissao').classList.toggle('active',t==='comissao');
+};
+
+function cargoLabel(){
+  if(fCargos.size===0)return'Todos os cargos';
+  if(fCargos.size===1)return[...fCargos][0];
+  return`${fCargos.size} cargos`;
+}
+window.toggleCargoPanel=()=>document.getElementById('cargo-panel').classList.toggle('open');
+window.toggleCargo=c=>{
+  fCargos.has(c)?fCargos.delete(c):fCargos.add(c);
+  document.getElementById('cargo-btn-label').textContent=cargoLabel();
+  document.getElementById('cargo-btn').classList.toggle('has-filter',fCargos.size>0);
+  document.querySelectorAll('.cargo-chk').forEach(el=>{el.checked=fCargos.has(el.value);});
+  renderMeta(false);
+};
+window.clearCargos=()=>{
+  fCargos.clear();
+  document.getElementById('cargo-btn-label').textContent=cargoLabel();
+  document.getElementById('cargo-btn').classList.remove('has-filter');
+  document.querySelectorAll('.cargo-chk').forEach(el=>{el.checked=false;});
+  renderMeta(false);
+};
+document.addEventListener('click',e=>{
+  const w=document.getElementById('cargo-wrap');
+  if(w&&!w.contains(e.target)){const p=document.getElementById('cargo-panel');if(p)p.classList.remove('open');}
+});
+
+function renderMetaToolbar(){
+  document.getElementById('toolbar-meta').innerHTML=`
     <div class="filter-group">
       <span class="filter-label">Status</span>
-      ${['todos','ativo','inativo'].map(f =>
-        `<button class="filter-btn ${filterStatus===f?'active':''}" onclick="setStatus('${f}')">
-          ${f==='todos'?'Todos':f==='ativo'?'Ativo':'Inativo'}
-        </button>`
-      ).join('')}
+      ${['todos','ativo','inativo'].map(f=>`<button class="filter-btn ${fStatus===f?'active':''}" onclick="setMStatus('${f}')">${f==='todos'?'Todos':f==='ativo'?'Ativo':'Inativo'}</button>`).join('')}
     </div>
     <div class="divider"></div>
     <div class="filter-group">
       <span class="filter-label">Equipe</span>
-      <select class="filter-select" onchange="setEquipe(this.value)">
-        <option value="todas" ${filterEquipe==='todas'?'selected':''}>Todas</option>
-        ${equipes.map(e => `<option value="${e}" ${filterEquipe===e?'selected':''}>${e}</option>`).join('')}
+      <select class="filter-select" onchange="setMEquipe(this.value)">
+        <option value="todas">Todas</option>
+        ${equipes.map(e=>`<option value="${e}" ${fEquipe===e?'selected':''}>${e}</option>`).join('')}
       </select>
     </div>
     <div class="divider"></div>
-    <span class="count" id="cnt"></span>`;
+    <div class="filter-group">
+      <span class="filter-label">Cargo</span>
+      <div class="cargo-wrap" id="cargo-wrap">
+        <button class="cargo-btn ${fCargos.size>0?'has-filter':''}" id="cargo-btn" onclick="toggleCargoPanel()">
+          <span id="cargo-btn-label">${cargoLabel()}</span>
+          <span class="cargo-chevron">v</span>
+        </button>
+        <div class="cargo-panel" id="cargo-panel">
+          ${cargos.map(c=>`<label class="cargo-option"><input type="checkbox" class="cargo-chk" value="${c}" ${fCargos.has(c)?'checked':''} onchange="toggleCargo(this.value)">${c}</label>`).join('')}
+          <div class="cargo-footer"><button class="cargo-clear" onclick="clearCargos()">Limpar selecao</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <span class="count" id="cnt-meta"></span>`;
 }
 
-function render() {
-  renderToolbar();
+function renderMeta(rebuild=true){
+  if(rebuild)renderMetaToolbar();
+  let list=metaData;
+  if(fStatus!=='todos')list=list.filter(p=>fStatus==='ativo'?p.ativo:!p.ativo);
+  if(fEquipe!=='todas')list=list.filter(p=>p.equipe===fEquipe);
+  if(fCargos.size>0)list=list.filter(p=>fCargos.has(p.cargo));
+  const cnt=document.getElementById('cnt-meta');
+  if(cnt)cnt.textContent=list.length+' pessoa'+(list.length!==1?'s':'');
+  document.getElementById('root-meta').innerHTML=`
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th class="col-alert">!</th>
+        <th class="tl col-nome">Nome</th>
+        <th class="tl col-cargo">Cargo</th>
+        <th class="tl col-equipe">Subarea</th>
+        <th class="col-status">Status</th>
+        <th class="col-avg">Media</th>
+        ${monthCols.map((m,i)=>`<th class="col-mes${i%3===0?' sep':''}">${m.label}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${list.map(p=>{
+          const alert=p.ativo&&hasBlackStreak(p.meses);
+          const avg=avgPct(p.meses);
+          return`<tr>
+            <td class="p">${alert?`<div class="alert-wrap"><div class="alert-dot"></div></div>`:''}</td>
+            <td class="p tl" style="font-weight:500">${p.nome}</td>
+            <td class="p tl" style="color:#555">${p.cargo}</td>
+            <td class="p tl" style="color:#777">${p.equipe}</td>
+            <td class="p"><span class="badge ${p.ativo?'b-ativo':'b-inativo'}">${p.ativo?'Ativo':'Inativo'}</span></td>
+            <td class="col-avg">${avgHTML(avg)}</td>
+            ${monthCols.map((m,i)=>`<td class="${i%3===0?'sep':''}">${cellHTML(p.meses[m.key]??null)}</td>`).join('')}
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>`;
+}
+window.setMStatus=f=>{fStatus=f;renderMeta();};
+window.setMEquipe=f=>{fEquipe=f;renderMeta(false);};
 
-  let list = tableData;
-  if (filterStatus !== 'todos') list = list.filter(p => filterStatus === 'ativo' ? p.ativo : !p.ativo);
-  if (filterEquipe !== 'todas') list = list.filter(p => p.equipe === filterEquipe);
+function renderComToolbar(){
+  document.getElementById('toolbar-com').innerHTML=`
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      ${['todos','ativo','inativo'].map(f=>`<button class="filter-btn ${fcStatus===f?'active':''}" onclick="setCStatus('${f}')">${f==='todos'?'Todos':f==='ativo'?'Ativo':'Inativo'}</button>`).join('')}
+    </div>
+    <div class="divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">Equipe</span>
+      <select class="filter-select" onchange="setCEquipe(this.value)">
+        <option value="todas">Todas</option>
+        ${equipes.map(e=>`<option value="${e}" ${fcEquipe===e?'selected':''}>${e}</option>`).join('')}
+      </select>
+    </div>
+    <div class="divider"></div>
+    <span class="count" id="cnt-com"></span>`;
+}
 
-  const el = document.getElementById('cnt');
-  if (el) el.textContent = list.length + ' pessoa' + (list.length !== 1 ? 's' : '');
-
-  document.getElementById('root').innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th class="col-alert" title="Alerta: 3 meses seguidos no Black Flag">⚠</th>
-            <th class="col-nome">Nome</th>
-            <th class="col-cargo">Cargo</th>
-            <th class="col-equipe">Subárea</th>
-            <th class="col-status">Status</th>
-            ${monthCols.map((m, i) =>
-              `<th class="col-mes${i%3===0?' sep':''}">${m.label}</th>`
-            ).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${list.map(p => {
-            const alert = p.ativo && hasBlackStreak(p.meses);
-            return `<tr>
-              <td class="col-alert">
-                ${alert
-                  ? `<div class="alert-wrap"><div class="alert-dot" title="3 meses seguidos no Black Flag"></div></div>`
-                  : ''}
-              </td>
-              <td class="col-nome">${p.nome}</td>
-              <td class="col-cargo">${p.cargo}</td>
-              <td class="col-equipe">${p.equipe}</td>
-              <td class="col-status"><span class="badge ${p.ativo?'b-ativo':'b-inativo'}">${p.ativo?'Ativo':'Inativo'}</span></td>
-              ${monthCols.map((m, i) =>
-                `<td class="${i%3===0?'sep':''}">${cellHTML(p.meses[m.key] ?? null)}</td>`
-              ).join('')}
-            </tr>`;
+function renderCom(rebuild=true){
+  if(rebuild)renderComToolbar();
+  let list=comData;
+  if(fcStatus!=='todos')list=list.filter(p=>fcStatus==='ativo'?p.ativo:!p.ativo);
+  if(fcEquipe!=='todas')list=list.filter(p=>p.equipe===fcEquipe);
+  const cnt=document.getElementById('cnt-com');
+  if(cnt)cnt.textContent=list.length+' pessoa'+(list.length!==1?'s':'');
+  const grandTotal=list.reduce((s,p)=>s+(p.totalCom||0),0);
+  document.getElementById('root-com').innerHTML=`
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th class="tl col-nome">Nome</th>
+        <th class="tl col-cargo">Cargo</th>
+        <th class="tl col-equipe">Subarea</th>
+        <th class="col-status">Status</th>
+        <th class="col-total">Total Comissao</th>
+        ${monthCols.map((m,i)=>`<th class="col-mes${i%3===0?' sep':''}">${m.label}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${list.map(p=>`<tr>
+          <td class="p tl" style="font-weight:500">${p.nome}</td>
+          <td class="p tl" style="color:#555">${p.cargo}</td>
+          <td class="p tl" style="color:#777">${p.equipe}</td>
+          <td class="p"><span class="badge ${p.ativo?'b-ativo':'b-inativo'}">${p.ativo?'Ativo':'Inativo'}</span></td>
+          <td class="col-total">${fmtMoney(p.totalCom||0)}</td>
+          ${monthCols.map((m,i)=>{
+            const v=p.comMeses[m.key];
+            return`<td class="${i%3===0?'sep':''}">${(v!==null&&v!==undefined)?`<div class="com-cell">${fmtMoney(v)}</div>`:`<div class="com-cell com-empty">-</div>`}</td>`;
           }).join('')}
-        </tbody>
-      </table>
-    </div>`;
+        </tr>`).join('')}
+        <tr class="total-row">
+          <td class="p tl" colspan="3">Total Geral</td>
+          <td class="p"></td>
+          <td class="col-total">${fmtMoney(grandTotal)}</td>
+          ${monthCols.map((m,i)=>{
+            const s=list.reduce((acc,p)=>acc+(p.comMeses[m.key]||0),0);
+            const has=list.some(p=>p.comMeses[m.key]!==null&&p.comMeses[m.key]!==undefined);
+            return`<td class="p ${i%3===0?'sep':''}" style="text-align:right;font-weight:600">${has?fmtMoney(s):'-'}</td>`;
+          }).join('')}
+        </tr>
+      </tbody>
+    </table></div>`;
 }
+window.setCStatus=f=>{fcStatus=f;renderCom();};
+window.setCEquipe=f=>{fcEquipe=f;renderCom(false);};
 
-window.setStatus = f => { filterStatus = f; render(); };
-window.setEquipe = f => { filterEquipe = f; render(); };
+Promise.all([fetchCSV(URL_HIST),fetchCSV(URL_COLAB)]).then(([hist,colab])=>{
+  const hk=Object.keys(hist[0]||{}),ck=Object.keys(colab[0]||{});
 
-const TODAY   = new Date();
-const CUR_KEY = `${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}`;
+  const cNome=findCol(hk,/^nome$/i)||findCol(hk,/nome|name/i)||hk[0];
+  const cMes =findCol(hk,/m[eê]s[\s_]?ref/i)||findCol(hk,/m[eê]s/i)||hk[1];
+  const cAno =findCol(hk,/ano[\s_]?ref/i)||findCol(hk,/ano/i)||hk[2];
+  const cPct =findCol(hk,/ating|%|porcen|percent|result/i)||hk[hk.length-1];
+  const cCom =findCol(hk,/comiss[aã]o_paga|comissao_paga|comiss[aã]o|commission/i);
 
-Promise.all([fetchCSV(URL_HIST), fetchCSV(URL_COLAB)]).then(([hist, colab]) => {
+  const ccNome   =findCol(ck,/^nome$/i)||findCol(ck,/nome|name/i)||ck[0];
+  const ccCargo  =findCol(ck,/^cargo$/i)||findCol(ck,/cargo|n[íi]vel/i);
+  const ccSubarea=findCol(ck,/sub[_\s]?[áa]rea/i)||findCol(ck,/subarea/i);
+  const ccMesRef =findCol(ck,/m[eê]s[\s_]?ref/i)||findCol(ck,/m[eê]s/i);
+  const ccAnoRef =findCol(ck,/ano[\s_]?ref/i)||findCol(ck,/ano/i);
 
-  const hk = Object.keys(hist[0]  || {});
-  const ck = Object.keys(colab[0] || {});
-
-  // ── Colunas do histórico ──
-  const cNome = findCol(hk, /^nome$/i)                          || findCol(hk, /nome|name/i)  || hk[0];
-  const cMes  = findCol(hk, /m[eê]s[\s_]?ref/i)                || findCol(hk, /m[eê]s/i)     || hk[1];
-  const cAno  = findCol(hk, /ano[\s_]?ref/i)                   || findCol(hk, /ano/i)         || hk[2];
-  const cPct  = findCol(hk, /ating|%|porcen|percent|result/i)  || hk[hk.length - 1];
-
-  // ── Colunas dos colaboradores ──
-  const ccNome    = findCol(ck, /^nome$/i)           || findCol(ck, /nome|name/i)      || ck[0];
-  const ccCargo   = findCol(ck, /^cargo$/i)          || findCol(ck, /cargo|n[íi]vel/i);
-  const ccSubarea = findCol(ck, /sub[_\s]?[áa]rea/i) || findCol(ck, /subarea/i);
-  const ccMesRef  = findCol(ck, /m[eê]s[\s_]?ref/i)  || findCol(ck, /m[eê]s/i);
-  const ccAnoRef  = findCol(ck, /ano[\s_]?ref/i)      || findCol(ck, /ano/i);
-
-  // ── colabMap: nome -> linha DO MÊS ATUAL (Mês + Ano Referencia = hoje) ──
-  // Se a pessoa tiver múltiplas linhas (histórico de equipe), pega a do mês atual.
-  // Se não achar no mês atual, pega a mais recente.
-  const colabAll = {}; // nome -> [rows]
-  colab.forEach(r => {
-    const n = (r[ccNome] || '').trim();
-    if (!n) return;
-    if (!colabAll[n]) colabAll[n] = [];
-    colabAll[n].push(r);
+  const colabAll={};
+  colab.forEach(r=>{const n=(r[ccNome]||'').trim();if(!n)return;if(!colabAll[n])colabAll[n]=[];colabAll[n].push(r);});
+  const colabMap={};
+  Object.entries(colabAll).forEach(([nome,rows])=>{
+    const cur=rows.find(r=>parseMes(r[ccMesRef])===CUR_MON&&parseInt(r[ccAnoRef])===CUR_YEA);
+    if(cur){colabMap[nome]=cur;return;}
+    const sorted=rows.slice().sort((a,b)=>(monthKey(b[ccAnoRef],b[ccMesRef])||'').localeCompare(monthKey(a[ccAnoRef],a[ccMesRef])||''));
+    colabMap[nome]=sorted[0];
   });
 
-  const colabMap = {}; // nome -> row do mês atual (ou mais recente)
-  Object.entries(colabAll).forEach(([nome, rows]) => {
-    // tenta achar a linha cujo Mês+Ano bate com o mês atual
-    const curRow = rows.find(r => {
-      const m = parseMes(r[ccMesRef]);
-      const a = parseInt(r[ccAnoRef]);
-      return m === TODAY.getMonth() + 1 && a === TODAY.getFullYear();
-    });
-    if (curRow) {
-      colabMap[nome] = curRow;
-    } else {
-      // fallback: linha mais recente disponível
-      const sorted = rows.slice().sort((a, b) => {
-        const ka = monthKey(a[ccAnoRef], a[ccMesRef]) || '';
-        const kb = monthKey(b[ccAnoRef], b[ccMesRef]) || '';
-        return kb.localeCompare(ka);
-      });
-      colabMap[nome] = sorted[0];
-    }
-  });
-
-  // ── Pivotar histórico ──
-  const pivot = {};
-  const monthSet = new Set();
-
-  hist.forEach(r => {
-    const nome = (r[cNome] || '').trim();
-    const key  = monthKey(r[cAno], r[cMes]);
-    const val  = parsePct(r[cPct]);
-    if (!nome || !key) return;
-    if (!pivot[nome]) pivot[nome] = { meses: {} };
-    pivot[nome].meses[key] = val;
+  const pivot={},pivotCom={};
+  const monthSet=new Set();
+  hist.forEach(r=>{
+    const nome=(r[cNome]||'').trim();
+    const key=monthKey(r[cAno],r[cMes]);
+    const pct=parsePct(r[cPct]);
+    const com=cCom?parseMoney(r[cCom]):null;
+    if(!nome||!key)return;
+    if(!pivot[nome])pivot[nome]={meses:{}};
+    if(!pivotCom[nome])pivotCom[nome]={meses:{}};
+    pivot[nome].meses[key]=pct;
+    pivotCom[nome].meses[key]=com;
     monthSet.add(key);
   });
 
-  monthCols = [...monthSet].sort().map(k => ({ key: k, label: monthLabel(k) }));
+  monthCols=[...monthSet].sort().map(k=>({key:k,label:monthLabel(k)}));
 
-  // ── Montar tableData ──
-  const allNames = new Set([...Object.keys(pivot), ...Object.keys(colabMap)]);
+  const allNames=new Set([...Object.keys(pivot),...Object.keys(colabMap)]);
 
-  tableData = [...allNames].filter(n => n).map(nome => {
-    const co  = colabMap[nome] || {};
-    const piv = pivot[nome]    || { meses: {} };
+  const buildPerson=nome=>{
+    const co=colabMap[nome]||{};
+    const piv=pivot[nome]||{meses:{}};
+    const ativo=(colabAll[nome]||[]).some(r=>parseMes(r[ccMesRef])===CUR_MON&&parseInt(r[ccAnoRef])===CUR_YEA);
+    const cargo=(ccCargo?(co[ccCargo]||''):'').trim()||'--';
+    const equipe=(ccSubarea?(co[ccSubarea]||''):'').trim()||'--';
+    return{nome,cargo,equipe,ativo,meses:piv.meses};
+  };
 
-    // Ativo = tem linha na aba de colaboradores com Mês+Ano = mês atual
-    const coRows  = colabAll[nome] || [];
-    const ativo   = coRows.some(r => {
-      const m = parseMes(r[ccMesRef]);
-      const a = parseInt(r[ccAnoRef]);
-      return m === TODAY.getMonth() + 1 && a === TODAY.getFullYear();
-    });
-
-    // Cargo e Equipe (Subárea) da linha do mês atual
-    const cargo  = (ccCargo   ? (co[ccCargo]   || '') : '').trim() || '—';
-    const equipe = (ccSubarea ? (co[ccSubarea]  || '') : '').trim() || '—';
-
-    return { nome, cargo, equipe, ativo, meses: piv.meses };
+  metaData=[...allNames].filter(n=>n).map(buildPerson);
+  metaData.sort((a,b)=>{
+    if(a.ativo!==b.ativo)return a.ativo?-1:1;
+    const d=filledMonths(b.meses)-filledMonths(a.meses);
+    return d!==0?d:a.nome.localeCompare(b.nome,'pt-BR');
   });
 
-  tableData.sort((a, b) => {
-    if (a.ativo !== b.ativo) return a.ativo ? -1 : 1;
-    return a.nome.localeCompare(b.nome, 'pt-BR');
+  comData=[...allNames].filter(n=>n).map(nome=>{
+    const base=buildPerson(nome);
+    const comMeses=(pivotCom[nome]||{meses:{}}).meses;
+    const totalCom=Object.values(comMeses).reduce((s,v)=>s+(v||0),0);
+    return{...base,comMeses,totalCom};
+  }).filter(p=>p.totalCom>0||Object.values(p.comMeses).some(v=>v!==null));
+
+  comData.sort((a,b)=>{
+    if(a.ativo!==b.ativo)return a.ativo?-1:1;
+    return b.totalCom-a.totalCom;
   });
 
-  equipes = [...new Set(tableData.map(p => p.equipe).filter(e => e && e !== '—'))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  equipes=[...new Set(metaData.map(p=>p.equipe).filter(e=>e&&e!=='--'))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  cargos=[...new Set(metaData.map(p=>p.cargo).filter(c=>c&&c!=='--'))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 
-  render();
-}).catch(e => {
-  document.getElementById('root').innerHTML =
-    `<div class="loading" style="color:#dc2626">⚠ Erro: ${e.message}</div>`;
+  renderMeta();
+  renderCom();
+}).catch(e=>{
+  document.getElementById('root-meta').innerHTML=`<div class="loading" style="color:#dc2626">Erro: ${e.message}</div>`;
+  document.getElementById('root-com').innerHTML=`<div class="loading" style="color:#dc2626">Erro: ${e.message}</div>`;
 });
 </script>
 </body>
